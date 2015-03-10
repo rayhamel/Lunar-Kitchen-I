@@ -1,12 +1,5 @@
 require 'pg'
 
-def db_connection
-  connection = PG.connect(dbname: 'recipes')
-  yield(connection)
-  ensure
-    connection.close
-end
-
 class Ingredient
   def initialize(id, name, recipe_id)
     @id = id
