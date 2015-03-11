@@ -8,7 +8,9 @@ def db_connection
     connection.close
 end
 
+# Deals with recipe data.
 class Recipe
+  attr_reader :id, :name, :instructions, :description
   def initialize(id, name, instructions, description)
     @id = id
     @name = name
@@ -16,45 +18,34 @@ class Recipe
     @description = description
   end
 
-  attr_reader :id, :name, :instructions, :description
-
   def ingredients
     db_connection do |conn|
       query = conn.exec_params(
-        'SELECT ingredients.id, ingredients.name, ingredients.recipe_id FROM ' \
-        'ingredients JOIN recipes ON recipes.id = ingredients.recipe_id WHERE' \
-        ' recipes.id = $1', [@id]
+        'SELECT ingredients.id, ingredients.name, recipe_id FROM ingredients ' \
+        'JOIN recipes ON recipes.id = recipe_id WHERE recipes.id = $1', [@id]
       )
-      ingredients_list = []
-      query.each do |q|
-        ingredients_list << Ingredient.new(q['id'], q['name'], q['recipe_id'])
-      end
-      ingredients_list
+      i = []
+      query.each { |q| i << Ingredient.new(q['id'], q['name'], q['recipe_id']) }
+      i
     end
   end
 
   def self.all
     all_recipes = db_connection { |conn| conn.exec('SELECT * FROM recipes') }
-    all_recipes_ary = []
-    all_recipes.each do |recipe|
-      all_recipes_ary << Recipe.new(
-        recipe['id'], recipe['name'], recipe['instructions'],
-        recipe['description']
-      )
+    ary = []
+    all_recipes.each do |r|
+      ary << new(r['id'], r['name'], r['instructions'], r['description'])
     end
-    all_recipes_ary
+    ary
   end
 
   def self.find(id)
     db_connection do |conn|
       query = conn.exec_params('SELECT * FROM recipes WHERE id = $1', [id])[0]
-      Recipe.new(
-        query['id'], query['name'], query['instructions'],
-        query['description']
-      )
+      new(id, query['name'], query['instructions'], query['description'])
     end
     rescue IndexError
-      Recipe.new(
+      new(
         id, "This recipe doesn't have a name.",
         "This recipe doesn't have any instructions.",
         "This recipe doesn't have a description."

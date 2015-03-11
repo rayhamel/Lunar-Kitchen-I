@@ -1,25 +1,25 @@
 require 'spec_helper'
 
-feature "User views a recipe" do
-  scenario "user the basic recipe information" do
+feature 'User views a recipe' do
+  scenario 'user the basic recipe information' do
     visit '/recipes/556'
 
-    title = "Rosemary Duck with Apricots"
-    description = "does this recipe work with ducks you shoot, or that you buy in a grocery store?"
-    instructions = "Method 1 Combine the rosemary, brown sugar, black pepper, and salt."
+    title = 'Rosemary Duck with Apricots'
+    description = 'does this recipe work with ducks you shoot, or that you buy in a grocery store?'
+    instructions = 'Method 1 Combine the rosemary, brown sugar, black pepper, and salt.'
 
     expect(page).to have_content title
     expect(page).to have_content description
     expect(page).to have_content instructions
   end
 
-  scenario "user views a recipe without a description" do
+  scenario 'user views a recipe without a description' do
     visit '/recipes/403'
 
     expect(page).to have_content "This recipe doesn't have a description."
   end
 
-  scenario "user views a recipe without any instructions" do
+  scenario 'user views a recipe without any instructions' do
     visit '/recipes/403'
 
     expect(page).to have_content "This recipe doesn't have any instructions."
